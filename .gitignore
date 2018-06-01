@@ -1,0 +1,9 @@
+y.tab.c
+y.tab.h
+lex.yy.c
+mdl.dSYM
+*.o
+*~
+mdl
+*.gif
+anim/*.png

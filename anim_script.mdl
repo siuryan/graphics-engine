@@ -1,0 +1,20 @@
+frames 40
+basename frisbee
+push
+move 100 200 0
+move 200 200 0 movement
+scale 3 3 3 movement
+rotate y 360 spinny
+rotate x 3 wobble
+torus 0 0 0 5 50
+torus 0 0 0 5 45
+torus 0 0 0 5 40
+torus 0 0 0 5 35
+torus 0 0 0 5 30
+torus 0 0 0 5 25
+torus 0 0 0 5 20
+torus 0 0 0 5 15
+vary spinny 0 39 0 1
+vary wobble 0 19 1 -1
+vary wobble 20 39 -1 1
+vary movement 0 39 0 1
