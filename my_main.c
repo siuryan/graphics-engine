@@ -101,13 +101,18 @@ void first_pass() {
     }
 
     if (vary_found && !frames_found) {
+        printf("Frames command not found.\n");
         exit(1);
     }
 
     if (frames_found && !name_found) {
         char basename[10] = "default";
-        printf("Default basename used: %s", basename);
+        printf("Default basename used: %s.\n", basename);
         strncpy(name, basename, sizeof(name));
+    }
+
+    if (!frames_found) {
+        num_frames = 1;
     }
 
 }
@@ -275,11 +280,13 @@ void my_main() {
     for (frame = 0; frame < num_frames; frame++) {
         printf("Frame: %d\n", frame);
 
-        struct vary_node * node = knobs[frame];
+        if (num_frames > 1) {
+            struct vary_node * node = knobs[frame];
 
-        while(node){
-            set_value(lookup_symbol(node->name), node->value);
-            node = node->next;
+            while(node){
+                set_value(lookup_symbol(node->name), node->value);
+                node = node->next;
+            }
         }
 
         int i;
@@ -392,15 +399,16 @@ void my_main() {
                     if (op[i].op.move.p != NULL)
                         {
                             printf("\tknob: %s",op[i].op.move.p->name);
-                            struct vary_node *knob = knobs[frame];
-                            while(strcmp(knob->name, op[i].op.move.p->name) && knob){
-                                knob = knob->next;
+                            if (num_frames > 1) {
+                                struct vary_node *knob = knobs[frame];
+                                while(strcmp(knob->name, op[i].op.move.p->name) && knob){
+                                    knob = knob->next;
+                                }
+                                knob_value = knob->value;
+                                xval *= knob_value;
+                                yval *= knob_value;
+                                zval *= knob_value;
                             }
-
-                            knob_value = knob->value;
-                            xval *= knob_value;
-                            yval *= knob_value;
-                            zval *= knob_value;
                         }
                     printf("Move: %6.2f %6.2f %6.2f",
                            xval, yval, zval);
@@ -418,15 +426,17 @@ void my_main() {
                     if (op[i].op.scale.p != NULL)
                         {
                             printf("\tknob: %s",op[i].op.scale.p->name);
-                            struct vary_node *knob = knobs[frame];
-                            while(strcmp(knob->name, op[i].op.scale.p->name) && knob){
-                                knob = knob->next;
-                            }
+                            if (num_frames > 1) {
+                                struct vary_node *knob = knobs[frame];
+                                while(strcmp(knob->name, op[i].op.scale.p->name) && knob){
+                                    knob = knob->next;
+                                }
 
-                            knob_value = knob->value;
-                            xval *= knob_value;
-                            yval *= knob_value;
-                            zval *= knob_value;
+                                knob_value = knob->value;
+                                xval *= knob_value;
+                                yval *= knob_value;
+                                zval *= knob_value;
+                            }
                         }
                     printf("Scale: %6.2f %6.2f %6.2f",
                            xval, yval, zval);
@@ -443,13 +453,15 @@ void my_main() {
                     if (op[i].op.rotate.p != NULL)
                         {
                             printf("\tknob: %s",op[i].op.rotate.p->name);
-                            struct vary_node *knob = knobs[frame];
-                            while(strcmp(knob->name, op[i].op.rotate.p->name) && knob){
-                                knob = knob->next;
-                            }
+                            if (num_frames > 1) {
+                                struct vary_node *knob = knobs[frame];
+                                while(strcmp(knob->name, op[i].op.rotate.p->name) && knob){
+                                    knob = knob->next;
+                                }
 
-                            knob_value = knob->value;
-                            theta *= knob_value;
+                                knob_value = knob->value;
+                                theta *= knob_value;
+                            }
                         }
                     printf("Rotate: axis: %6.2f degrees: %6.2f",
                            xval, theta);
@@ -473,6 +485,11 @@ void my_main() {
                 case POP:
                     //printf("Pop");
                     pop(systems);
+                    break;
+                case AMBIENT:
+                    ambient.red = op[i].op.ambient.c[0];
+                    ambient.green = op[i].op.ambient.c[1];
+                    ambient.blue = op[i].op.ambient.c[2];
                     break;
                 case SAVE:
                     //printf("Save: %s",op[i].op.save.p->name);
