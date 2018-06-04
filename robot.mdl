@@ -1,4 +1,6 @@
 //BODY
+light test -1 1 0 30 160 240
+ambient 100 100 100
 push
 move 250 250 0
 rotate y -30

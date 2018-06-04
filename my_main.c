@@ -491,6 +491,19 @@ void my_main() {
                     ambient.green = op[i].op.ambient.c[1];
                     ambient.blue = op[i].op.ambient.c[2];
                     break;
+                case LIGHT:
+                    ;
+                    struct light *l = (struct light *)malloc(sizeof(struct light));
+                    l = lookup_symbol(op[i].op.light.p->name)->s.l;
+
+                    light[LOCATION][0] = l->l[0];
+                    light[LOCATION][1] = l->l[1];
+                    light[LOCATION][2] = l->l[2];
+
+                    light[COLOR][RED] = op[i].op.light.c[0];
+                    light[COLOR][GREEN] = op[i].op.light.c[1];
+                    light[COLOR][BLUE] = op[i].op.light.c[2];
+                    break;
                 case SAVE:
                     //printf("Save: %s",op[i].op.save.p->name);
                     save_extension(t, op[i].op.save.p->name);
