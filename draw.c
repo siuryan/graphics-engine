@@ -93,8 +93,9 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb, color
 
   while ( y <= (int)points->m[1][top] ) {
     //printf("\tx0: %0.2f x1: %0.2f y: %d\n", x0, x1, y);
-    draw_line(x0, y, z0, x1, y, z1, s, zb, c);
-
+    //draw_line(x0, y, z0, x1, y, z1, s, zb, c);
+    draw_hline(x0, y, z0, x1, z1, s, zb, c);
+    
     x0+= dx0;
     x1+= dx1;
     z0+= dz0;
@@ -704,3 +705,28 @@ void draw_line(int x0, int y0, double z0,
   } //end drawing loop
   plot( s, zb, c, x1, y1, z );
 } //end draw_line
+
+
+//draw_line(x0, y, z0, x1, y, z1, s, zb, c);
+void draw_hline(int x0, int y, double z0, int x1, double z1 , screen s, zbuffer zb, color c){
+  double dz = (z0 - z1)/(x0 - x1);
+
+  int xt, x;
+  double zt, z;
+
+  if(x0 > x1){
+    xt = x0;
+    z = z0;
+    x0 = x1;
+    z0 = z1;
+    x1 = xt;
+    z1 = z;
+  }
+
+  z = z0;
+  for(x = x0; x < x1; x++){
+    plot(s, zb, c, x, y, z);
+    z += dz;
+  }
+			
+}
