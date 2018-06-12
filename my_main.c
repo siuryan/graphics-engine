@@ -504,6 +504,13 @@ void my_main() {
                     light[COLOR][GREEN] = op[i].op.light.c[1];
                     light[COLOR][BLUE] = op[i].op.light.c[2];
                     break;
+                case CONSTANTS:
+                    ;
+                    struct constants *c = (struct constants *)malloc(sizeof(struct constants));
+                    c = lookup_symbol(op[i].op.constants.p->name)->s.c;
+                    //set value?
+
+                    break;
                 case SAVE:
                     //printf("Save: %s",op[i].op.save.p->name);
                     save_extension(t, op[i].op.save.p->name);
