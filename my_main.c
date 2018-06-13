@@ -47,6 +47,7 @@
 #include "draw.h"
 #include "stack.h"
 #include "gmath.h"
+#include "hash_table.h"
 
 
 /*======== void first_pass() ==========
@@ -191,6 +192,43 @@ void print_knobs() {
     }
 }
 
+/*======== void set_constants() ==========
+  Inputs:
+  Returns:
+
+  Sets the reflection arrays to the values specified by the constant
+  ====================*/
+void set_constants(struct constants *c, double *a, double *d, double *s) {
+    a[0] = c->r[0];
+    a[1] = c->g[0];
+    a[2] = c->b[0];
+    d[0] = c->r[1];
+    d[1] = c->g[1];
+    d[2] = c->b[1];
+    s[0] = c->r[2];
+    s[1] = c->g[2];
+    s[2] = c->b[2];
+}
+
+/*======== void reset_constants() ==========
+  Inputs:
+  Returns:
+
+  Resets the reflection arrays to the default values
+  ====================*/
+void reset_constants(double *a, double *d, double *s, double *a_default, double *d_default, double *s_default) {
+    a[0] = a_default[RED];
+    a[1] = a_default[GREEN];
+    a[2] = a_default[BLUE];
+    d[0] = d_default[RED];
+    d[1] = d_default[GREEN];
+    d[2] = d_default[BLUE];
+    s[0] = s_default[RED];
+    s[1] = s_default[GREEN];
+    s[2] = s_default[BLUE];
+}
+
+
 /*======== void my_main() ==========
   Inputs:
   Returns:
@@ -233,12 +271,14 @@ void my_main() {
     double knob_value, xval, yval, zval;
 
     //Lighting values here for easy access
+    struct constants *c;
     color ambient;
     double light[2][3];
     double view[3];
-    double areflect[3];
-    double dreflect[3];
-    double sreflect[3];
+    double areflect[3];  // default
+    double dreflect[3];  // default
+    double sreflect[3];  // default
+    double a[3], d[3], s[3];
 
     ambient.red = 50;
     ambient.green = 50;
@@ -267,6 +307,8 @@ void my_main() {
     sreflect[RED] = 0.5;
     sreflect[GREEN] = 0.5;
     sreflect[BLUE] = 0.5;
+
+    c = (struct constants *)malloc(sizeof(struct constants));
 
     systems = new_stack();
     tmp = new_matrix(4, 1000);
@@ -300,9 +342,12 @@ void my_main() {
                     /* 	 op[i].op.sphere.d[0],op[i].op.sphere.d[1], */
                     /* 	 op[i].op.sphere.d[2], */
                     /* 	 op[i].op.sphere.r); */
+                    reset_constants(a, d, s, areflect, dreflect, sreflect);
                     if (op[i].op.sphere.constants != NULL)
                         {
                             //printf("\tconstants: %s",op[i].op.sphere.constants->name);
+                            c = lookup_symbol(op[i].op.sphere.constants->name)->s.c;
+                            set_constants(c, a, d, s);
                         }
                     if (op[i].op.sphere.cs != NULL)
                         {
@@ -314,7 +359,7 @@ void my_main() {
                                op[i].op.sphere.r, step_3d);
                     matrix_mult( peek(systems), tmp );
                     draw_polygons(tmp, t, zb, view, light, ambient,
-                                  areflect, dreflect, sreflect);
+                                  a, d, s);
                     tmp->lastcol = 0;
                     break;
                 case TORUS:
@@ -322,9 +367,12 @@ void my_main() {
                     /* 	 op[i].op.torus.d[0],op[i].op.torus.d[1], */
                     /* 	 op[i].op.torus.d[2], */
                     /* 	 op[i].op.torus.r0,op[i].op.torus.r1); */
+                    reset_constants(a, d, s, areflect, dreflect, sreflect);
                     if (op[i].op.torus.constants != NULL)
                         {
                             //printf("\tconstants: %s",op[i].op.torus.constants->name);
+                            c = lookup_symbol(op[i].op.torus.constants->name)->s.c;
+                            set_constants(c, a, d, s);
                         }
                     if (op[i].op.torus.cs != NULL)
                         {
@@ -346,9 +394,12 @@ void my_main() {
                     /* 	 op[i].op.box.d0[2], */
                     /* 	 op[i].op.box.d1[0],op[i].op.box.d1[1], */
                     /* 	 op[i].op.box.d1[2]); */
+                    reset_constants(a, d, s, areflect, dreflect, sreflect);
                     if (op[i].op.box.constants != NULL)
                         {
                             //printf("\tconstants: %s",op[i].op.box.constants->name);
+                            c = lookup_symbol(op[i].op.box.constants->name)->s.c;
+                            set_constants(c, a, d, s);
                         }
                     if (op[i].op.box.cs != NULL)
                         {
@@ -370,9 +421,12 @@ void my_main() {
                     /* 	 op[i].op.line.p0[1], */
                     /* 	 op[i].op.line.p1[0],op[i].op.line.p1[1], */
                     /* 	 op[i].op.line.p1[1]); */
+                    reset_constants(a, d, s, areflect, dreflect, sreflect);
                     if (op[i].op.line.constants != NULL)
                         {
                             //printf("\n\tConstants: %s",op[i].op.line.constants->name);
+                            c = lookup_symbol(op[i].op.line.constants->name)->s.c;
+                            set_constants(c, a, d, s);
                         }
                     if (op[i].op.line.cs0 != NULL)
                         {
@@ -505,11 +559,6 @@ void my_main() {
                     light[COLOR][BLUE] = op[i].op.light.c[2];
                     break;
                 case CONSTANTS:
-                    ;
-                    struct constants *c = (struct constants *)malloc(sizeof(struct constants));
-                    c = lookup_symbol(op[i].op.constants.p->name)->s.c;
-                    //set value?
-
                     break;
                 case SAVE:
                     //printf("Save: %s",op[i].op.save.p->name);

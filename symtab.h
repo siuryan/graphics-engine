@@ -46,5 +46,4 @@ void print_symtab();
 SYMTAB *add_symbol(char *name, int type, void *data);
 void set_value(SYMTAB *p, double value);
 
-
 #endif
