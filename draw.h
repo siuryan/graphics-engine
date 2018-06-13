@@ -1,8 +1,10 @@
+
 #ifndef DRAW_H
 #define DRAW_H
 
 #include "matrix.h"
 #include "ml6.h"
+#include "symtab.h"
 
 void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb, color c );
 
@@ -12,7 +14,7 @@ void add_polygons( struct matrix * points,
                    double x1, double y1, double z1,
                    double x2, double y2, double z2);
 void draw_polygons( struct matrix * points, screen s, zbuffer zb,
-                    double *view, double light[2][3], color ambient,
+                    double *view, struct light **lights, int num_lights, color ambient,
                     double *areflect, double *dreflect, double *sreflect);
 
 //3d shapes

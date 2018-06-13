@@ -5,7 +5,7 @@
 #include "matrix.h"
 
 #define MAX_COMMANDS 512
-#define MAX_CONSTANTS 32
+#define MAX_LIGHTS 8
 
 extern int lastop;
 
@@ -140,6 +140,7 @@ struct vary_node {
 void print_knobs();
 void process_knobs();
 void first_pass();
+int find_light();
 struct vary_node ** second_pass();
 void set_constants(struct constants *c, double *a, double *d, double *s);
 void reset_constants(double *a, double *d, double *s, double *a_default, double *d_default, double *s_default);

@@ -148,7 +148,7 @@ void add_polygon( struct matrix *polygons,
   triangles
   ====================*/
 void draw_polygons(struct matrix *polygons, screen s, zbuffer zb,
-                   double *view, double light[2][3], color ambient,
+                   double *view, struct light **lights, int num_lights, color ambient,
                    double *areflect,
                    double *dreflect,
                    double *sreflect) {
@@ -166,7 +166,7 @@ void draw_polygons(struct matrix *polygons, screen s, zbuffer zb,
 
     if ( dot_product(normal, view) > 0 ) {
 
-      color c = get_lighting(normal, view, ambient, light, areflect, dreflect, sreflect);
+        color c = get_lighting(normal, view, ambient, lights, num_lights, areflect, dreflect, sreflect);
 
       scanline_convert(polygons, point, s, zb, c);
 

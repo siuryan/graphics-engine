@@ -7,18 +7,33 @@
 #include "ml6.h"
 
 //lighting functions
-color get_lighting( double *normal, double *view, color alight, double light[2][3], double *areflect, double *dreflect, double *sreflect) {
+color get_lighting( double *normal, double *view, color alight, struct light **lights, int num_lights, double *areflect, double *dreflect, double *sreflect) {
 
   color a, d, s, i;
   normalize(normal);
 
   a = calculate_ambient( alight, areflect );
-  d = calculate_diffuse( light, dreflect, normal );
-  s = calculate_specular( light, sreflect, view, normal );
+  i.red = a.red;
+  i.green = a.green;
+  i.blue = a.blue;
 
-  i.red = a.red + d.red + s.red;
-  i.green = a.green + d.green + s.green;
-  i.blue = a.blue + d.blue + s.blue;
+  int j;
+  for (j = 0; j < num_lights; j++) {
+      double light[2][3];
+      light[LOCATION][0] = lights[j]->l[0];
+      light[LOCATION][1] = lights[j]->l[1];
+      light[LOCATION][2] = lights[j]->l[2];
+      light[COLOR][0] = lights[j]->c[0];
+      light[COLOR][1] = lights[j]->c[1];
+      light[COLOR][2] = lights[j]->c[2];
+
+      d = calculate_diffuse( light, dreflect, normal );
+      s = calculate_specular( light, sreflect, view, normal );
+
+      i.red += d.red + s.red;
+      i.green += d.green + s.green;
+      i.blue += d.blue + s.blue;
+  }
 
   limit_color(&i);
   return i;

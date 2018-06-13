@@ -50,6 +50,25 @@
 #include "hash_table.h"
 
 
+/*======== void find_light() ==========
+  Inputs:
+  Returns: 1 if found, 0 if not
+
+  Checks the op array for a light command
+
+  If light is found, use the specified light(s) and not the default light.
+  ====================*/
+int find_light() {
+    int i;
+    for (i=0;i<lastop;i++) {
+        switch (op[i].opcode) {
+        case LIGHT:
+            return 1;
+        }
+    }
+    return 0;
+}
+
 /*======== void first_pass() ==========
   Inputs:
   Returns:
@@ -272,8 +291,9 @@ void my_main() {
 
     //Lighting values here for easy access
     struct constants *c;
+    struct light *lights[MAX_LIGHTS];
+    int num_lights;
     color ambient;
-    double light[2][3];
     double view[3];
     double areflect[3];  // default
     double dreflect[3];  // default
@@ -283,14 +303,6 @@ void my_main() {
     ambient.red = 50;
     ambient.green = 50;
     ambient.blue = 50;
-
-    light[LOCATION][0] = 0.5;
-    light[LOCATION][1] = 0.75;
-    light[LOCATION][2] = 1;
-
-    light[COLOR][RED] = 0;
-    light[COLOR][GREEN] = 255;
-    light[COLOR][BLUE] = 255;
 
     view[0] = 0;
     view[1] = 0;
@@ -309,6 +321,22 @@ void my_main() {
     sreflect[BLUE] = 0.5;
 
     c = (struct constants *)malloc(sizeof(struct constants));
+
+    if (find_light() == 0) {
+        lights[0] = (struct light *)malloc(sizeof(struct light));
+
+        lights[0]->l[0] = 0.5;
+        lights[0]->l[1] = 0.75;
+        lights[0]->l[2] = 1;
+
+        lights[0]->c[0] = 0;
+        lights[0]->c[1] = 255;
+        lights[0]->c[2] = 255;
+
+        num_lights = 1;
+    } else {
+        num_lights = 0;
+    }
 
     systems = new_stack();
     tmp = new_matrix(4, 1000);
@@ -358,7 +386,7 @@ void my_main() {
                                op[i].op.sphere.d[2],
                                op[i].op.sphere.r, step_3d);
                     matrix_mult( peek(systems), tmp );
-                    draw_polygons(tmp, t, zb, view, light, ambient,
+                    draw_polygons(tmp, t, zb, view, lights, num_lights, ambient,
                                   a, d, s);
                     tmp->lastcol = 0;
                     break;
@@ -384,7 +412,7 @@ void my_main() {
                               op[i].op.torus.d[2],
                               op[i].op.torus.r0,op[i].op.torus.r1, step_3d);
                     matrix_mult( peek(systems), tmp );
-                    draw_polygons(tmp, t, zb, view, light, ambient,
+                    draw_polygons(tmp, t, zb, view, lights, num_lights, ambient,
                                   areflect, dreflect, sreflect);
                     tmp->lastcol = 0;
                     break;
@@ -411,7 +439,7 @@ void my_main() {
                             op[i].op.box.d1[0],op[i].op.box.d1[1],
                             op[i].op.box.d1[2]);
                     matrix_mult( peek(systems), tmp );
-                    draw_polygons(tmp, t, zb, view, light, ambient,
+                    draw_polygons(tmp, t, zb, view, lights, num_lights, ambient,
                                   areflect, dreflect, sreflect);
                     tmp->lastcol = 0;
                     break;
@@ -549,14 +577,8 @@ void my_main() {
                     ;
                     struct light *l = (struct light *)malloc(sizeof(struct light));
                     l = lookup_symbol(op[i].op.light.p->name)->s.l;
-
-                    light[LOCATION][0] = l->l[0];
-                    light[LOCATION][1] = l->l[1];
-                    light[LOCATION][2] = l->l[2];
-
-                    light[COLOR][RED] = op[i].op.light.c[0];
-                    light[COLOR][GREEN] = op[i].op.light.c[1];
-                    light[COLOR][BLUE] = op[i].op.light.c[2];
+                    lights[num_lights] = l;
+                    num_lights++;
                     break;
                 case CONSTANTS:
                     break;
