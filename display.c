@@ -50,13 +50,15 @@ void clear_screen( screen s ) {
   int x, y;
   color c;
 
-  /* c.red = 0; */
-  /* c.green = 0; */
-  /* c.blue = 0; */
+  c.red = 0;
+  c.green = 0;
+  c.blue = 0;
 
+  /*
   c.red = 255;
   c.green = 255;
   c.blue = 255;
+  */
 
   for ( y=0; y < YRES; y++ )
     for ( x=0; x < XRES; x++)

@@ -1,0 +1,13 @@
+frames 100
+basename cow
+ambient 50 50 50
+light l0 1 1 1 255 255 255
+light l1 -1 1 1 255 255 255
+//light l2 0 -1 1 255 255 255
+constants matte 0.1 0.5 0.01 0.1 0.5 0.01 0.1 0.5 0.01
+push
+move 250 250 0
+scale 40 40 40
+rotate y 360 turn
+mesh matte :cow.obj
+vary turn 0 99 0 1
