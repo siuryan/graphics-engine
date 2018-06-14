@@ -48,6 +48,7 @@
 #include "stack.h"
 #include "gmath.h"
 #include "hash_table.h"
+#include "mesh.h"
 
 
 /*======== void find_light() ==========
@@ -60,13 +61,15 @@
   ====================*/
 int find_light() {
     int i;
+    int num_lights = 0;
+
     for (i=0;i<lastop;i++) {
         switch (op[i].opcode) {
         case LIGHT:
-            return 1;
+            num_lights++;
         }
     }
-    return 0;
+    return num_lights;
 }
 
 /*======== void first_pass() ==========
@@ -293,6 +296,7 @@ void my_main() {
     struct constants *c;
     struct light *lights[MAX_LIGHTS];
     int num_lights;
+    int current_light;
     color ambient;
     double view[3];
     double areflect[3];  // default
@@ -322,7 +326,10 @@ void my_main() {
 
     c = (struct constants *)malloc(sizeof(struct constants));
 
-    if (find_light() == 0) {
+    num_lights = find_light();
+    current_light = 0;
+
+    if (num_lights == 0) {
         lights[0] = (struct light *)malloc(sizeof(struct light));
 
         lights[0]->l[0] = 0.5;
@@ -334,8 +341,6 @@ void my_main() {
         lights[0]->c[2] = 255;
 
         num_lights = 1;
-    } else {
-        num_lights = 0;
     }
 
     systems = new_stack();
@@ -413,7 +418,7 @@ void my_main() {
                               op[i].op.torus.r0,op[i].op.torus.r1, step_3d);
                     matrix_mult( peek(systems), tmp );
                     draw_polygons(tmp, t, zb, view, lights, num_lights, ambient,
-                                  areflect, dreflect, sreflect);
+                                  a, d, s);
                     tmp->lastcol = 0;
                     break;
                 case BOX:
@@ -440,7 +445,7 @@ void my_main() {
                             op[i].op.box.d1[2]);
                     matrix_mult( peek(systems), tmp );
                     draw_polygons(tmp, t, zb, view, lights, num_lights, ambient,
-                                  areflect, dreflect, sreflect);
+                                  a, d, s);
                     tmp->lastcol = 0;
                     break;
                 case LINE:
@@ -574,13 +579,28 @@ void my_main() {
                     ambient.blue = op[i].op.ambient.c[2];
                     break;
                 case LIGHT:
-                    ;
-                    struct light *l = (struct light *)malloc(sizeof(struct light));
-                    l = lookup_symbol(op[i].op.light.p->name)->s.l;
-                    lights[num_lights] = l;
-                    num_lights++;
+                    if (current_light < num_lights) {
+                        struct light *l = (struct light *)malloc(sizeof(struct light));
+                        l = lookup_symbol(op[i].op.light.p->name)->s.l;
+                        lights[current_light] = l;
+                        current_light++;
+                    }
                     break;
                 case CONSTANTS:
+                    break;
+                case MESH:
+                    reset_constants(a, d, s, areflect, dreflect, sreflect);
+                    if (op[i].op.mesh.constants != NULL)
+                        {
+                            //printf("\n\tConstants: %s",op[i].op.line.constants->name);
+                            c = lookup_symbol(op[i].op.mesh.constants->name)->s.c;
+                            set_constants(c, a, d, s);
+                        }
+                    tmp = parse_mesh(op[i].op.mesh.name);
+                    matrix_mult(peek(systems), tmp);
+                    draw_polygons(tmp, t, zb, view, lights, num_lights, ambient,
+                                  a, d, s);
+                    tmp->lastcol = 0;
                     break;
                 case SAVE:
                     //printf("Save: %s",op[i].op.save.p->name);

@@ -1,10 +1,10 @@
-OBJECTS= symtab.o print_pcode.o matrix.o my_main.o display.o draw.o gmath.o stack.o
+OBJECTS= symtab.o print_pcode.o matrix.o my_main.o display.o draw.o gmath.o stack.o mesh.o
 CFLAGS= -g
 LDFLAGS= -lm
 CC= gcc
 
 all: parser
-	./mdl robot.mdl
+	./mdl teapot.mdl
 
 parser: lex.yy.c y.tab.c y.tab.h $(OBJECTS)
 	gcc -o mdl $(CFLAGS) lex.yy.c y.tab.c $(OBJECTS) $(LDFLAGS)
@@ -41,6 +41,9 @@ gmath.o: gmath.c gmath.h matrix.h
 
 stack.o: stack.c stack.h matrix.h
 	$(CC) $(CFLAGS) -c stack.c
+
+mesh.o: mesh.c mesh.h
+	$(CC) $(CFLAGS) -c mesh.c
 
 clean:
 	rm y.tab.c y.tab.h

@@ -18,8 +18,9 @@ color get_lighting( double *normal, double *view, color alight, struct light **l
   i.blue = a.blue;
 
   int j;
+  double light[2][3];
+
   for (j = 0; j < num_lights; j++) {
-      double light[2][3];
       light[LOCATION][0] = lights[j]->l[0];
       light[LOCATION][1] = lights[j]->l[1];
       light[LOCATION][2] = lights[j]->l[2];

@@ -1,0 +1,15 @@
+frames 50
+basename tp
+ambient 50 50 50
+light l0 1 1 1 255 0 0
+light l1 -1 1 1 0 0 255
+light l2 0 -1 1 0 255 0
+constants shiny_white 0.1 0.3 0.7 0.1 0.3 0.7 0.1 0.3 0.7
+push
+move 250 250 0
+rotate y 360 r0
+rotate x 360 r0
+move 0 -79 0
+scale 3 3 3
+mesh shiny_white :teapot.obj
+vary r0 0 49 0 1
