@@ -6,8 +6,6 @@ Computer Graphics MKS66 Final Project
 - Lighting
   - `ambient`, `light`, `constants`
   - allow an MDL programmer to set the ambient light, create lighting constants and set multiple point light sources
-- Shading
-  - more to be added
 - Polygon meshes
   - `mesh`
   - allow an MDL programmer to specify a polygon mesh defined in an external OBJ file
